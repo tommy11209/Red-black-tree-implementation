@@ -1,0 +1,91 @@
+環境: 系計中工作站  linux1.cs.nctu.edu.tw
+
+語言:C++
+
+How to run?:
+                      若./a.out後 發生error，
+                      則必須先對原本input.txt做處理，Windows系統的換行字符(\r\n)與Linux(\n)並不相同
+                      將原本input.txt多餘的'\r'清掉
+                      cat input_original.txt | tr -d '\r' > input.txt
+                      g++ 0413249.cpp
+                      ./a.out  
+                      已預設讀取input.txt檔
+                      可得到output.txt
+	   (另外我的output.txt長得跟e3上的不一樣，但符合紅黑樹的rule。)
+
+方法:
+使滿足條件
+node非黑即紅、紅點的2個子點必為黑點、null為黑色、root一律黑色、
+root到不同leaf之path上有相同數目的黑點。
+
+======================================================================
+
+Insertion:
+In Red-Black tree, we use two tools to do balancing.
+
+1) Recoloring
+2) Rotation
+
+We try recoloring first, if recoloring doesn't work, then we go for rotation. 
+Following is detailed algorithm. The algorithms has mainly two cases depending upon the color of uncle. 
+If uncle is red, we do recoloring. If uncle is black, we do rotations and/or recoloring.
+
+Color of a NULL node is considered as BLACK.
+Let x be the newly inserted node.
+1) Perform standard BST insertion and make the color of newly inserted nodes as RED.
+
+2) If x is root, change color of x as BLACK (Black height of complete tree increases by 1).
+
+3) Do following if color of x's parent is not BLACK or x is not root.
+….a) If x’s uncle is RED (Grand parent must have been black from property 4)
+……..(i) Change color of parent and uncle as BLACK.
+……..(ii) color of grand parent as RED.
+……..(iii) Change x = x’s grandparent, repeat steps 2 and 3 for new x.
+
+….b) If x's uncle is BLACK, then there can be four configurations for x, x's parent and x's grandparent 
+(This is similar to AVL Tree)
+……..i) Left Left Case (p is left child of g and x is left child of p)
+……..ii) Left Right Case (p is left child of g and x is right child of p)
+……..iii) Right Right Case (Mirror of case a)
+……..iv) Right Left Case (Mirror of case c)
+
+=====================================================================
+
+Deletion:
+1) Perform standard BST delete. 
+
+2) Simple Case: If either u or v is red, we mark the replaced child as black (No change in black height). 
+Note that both u and v cannot be red as v is parent of u and two consecutive reds are not allowed in red-black tree.
+
+3) If Both u and v are Black.
+
+3.1) Color u as double black.  Now our task reduces to convert this double black to single black. 
+Note that If v is leaf, then u is NULL and color of NULL is considered as black. 
+So the deletion of a black leaf also causes a double black.
+
+3.2) Do following while the current node u is double black and it is not root. Let sibling of node be s.
+….(a): If sibling s is black and at least one of sibling’s children is red, perform rotation(s).
+Let the red child of s be r. 
+This case can be divided in four subcases depending upon positions of s and r.
+
+…………..(i) Left Left Case (s is left child of its parent and r is left child of s or both children of s are red). 
+This is mirror of right right case shown in below diagram.
+
+…………..(ii) Left Right Case (s is left child of its parent and r is right child). 
+This is mirror of right left case shown in below diagram.
+
+…………..(iii) Right Right Case (s is right child of its parent and r is right child of s or both children of s are red)
+
+…..(b): If sibling is black and its both children are black, perform recoloring, and recur for the parent if parent is black.
+
+In this case, if parent was red, then we didn't need to recur for prent, we can simply make it black (red + double black = single black)
+
+…..(c): If sibling is red, perform a rotation to move old sibling up, recolor the old sibling and parent. 
+The new sibling is always black (See the below diagram). 
+This mainly converts the tree to black sibling case (by rotation) and  leads to case (a) or (b). 
+This case can be divided in two subcases.
+…………..(i) Left Case (s is left child of its parent). This is mirror of right right case shown in below diagram. 
+We right rotate the parent p.
+…………..(iii) Right Case (s is right child of its parent). We left rotate the parent p.
+
+3.3) If u is root, make it single black and return (Black height of complete tree reduces by 1).                     
